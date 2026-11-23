@@ -3,139 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tamil TV Shows & Serials</title>
+  <title>Vijay TV Serials - Watch Online</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    body { background: #121212; color: #fff; }
-    
-    /* Header & Search */
-    header { background: #1f1f1f; padding: 15px; text-align: center; border-bottom: 2px solid #e50914; }
-    header h1 { font-size: 22px; color: #e50914; margin-bottom: 10px; }
-    .search-box { width: 90%; max-width: 500px; padding: 10px; border-radius: 5px; border: none; font-size: 15px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { background: #ffffff; color: #333; }
 
-    /* Channel Filter Buttons */
-    .filters { display: flex; justify-content: center; gap: 10px; padding: 15px; flex-wrap: wrap; }
-    .filter-btn { background: #2c2c2c; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; }
-    .filter-btn.active, .filter-btn:hover { background: #e50914; }
+    /* Top Header & Search */
+    header { background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; text-align: center; position: sticky; top: 0; z-index: 100; }
+    .header-top { max-width: 1100px; margin: auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .logo { font-size: 22px; font-weight: bold; color: #1a73e8; text-decoration: none; cursor: pointer; }
+    .search-box { padding: 8px 15px; width: 280px; max-width: 100%; border: 1px solid #ccc; border-radius: 20px; font-size: 14px; outline: none; }
+    .search-box:focus { border-color: #1a73e8; }
 
-    /* Video Player Section */
-    #player-container { display: none; max-width: 800px; margin: 15px auto; background: #1f1f1f; padding: 15px; border-radius: 8px; }
-    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+    /* Page Title (Like 'Serials' in Image) */
+    .section-title { text-align: center; font-size: 24px; font-weight: 600; color: #444; margin: 25px 0 20px; }
+
+    /* Container */
+    .container { max-width: 1050px; margin: auto; padding: 0 15px 40px; }
+
+    /* 3-Column Serials Grid (Matching Screenshot) */
+    .serials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+    @media (max-width: 768px) { .serials-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } }
+    @media (max-width: 480px) { .serials-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+
+    .serial-card { cursor: pointer; text-align: center; transition: transform 0.2s ease; }
+    .serial-card:hover { transform: translateY(-4px); }
+    .serial-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); background: #eee; }
+    .serial-name { margin-top: 10px; font-size: 15px; font-weight: 500; color: #2b6cb0; }
+    .serial-card:hover .serial-name { text-decoration: underline; }
+
+    /* Back Button & Episodes View */
+    #episodes-view { display: none; }
+    .back-btn { background: #1a73e8; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 15px; }
+    .back-btn:hover { background: #1557b0; }
+
+    .episodes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin-top: 15px; }
+    .ep-card { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; cursor: pointer; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: 0.2s; }
+    .ep-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .ep-card img { width: 100%; height: 145px; object-fit: cover; background: #eee; }
+    .ep-info { padding: 12px; }
+    .ep-title { font-size: 14px; font-weight: 600; color: #222; line-height: 1.4; }
+    .ep-date { font-size: 12px; color: #777; margin-top: 6px; }
+
+    /* Video Player Box */
+    #player-box { display: none; background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
     .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-    #player-title { margin-top: 10px; font-size: 18px; color: #f5f5f5; }
-    .close-btn { background: #e50914; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; float: right; margin-bottom: 10px; }
+    .player-bar { background: #1f1f1f; color: #fff; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+    .close-player { background: #e50914; color: #fff; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
 
-    /* Episodes Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; padding: 15px; max-width: 1200px; margin: auto; }
-    .card { background: #1f1f1f; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
-    .card:hover { transform: scale(1.03); }
-    .card img { width: 100%; height: 150px; object-fit: cover; background: #2a2a2a; }
-    .card-body { padding: 12px; }
-    .badge { background: #e50914; font-size: 11px; padding: 3px 7px; border-radius: 3px; }
-    .card-title { font-size: 15px; margin-top: 8px; line-height: 1.4; }
-    .card-date { font-size: 12px; color: #aaa; margin-top: 5px; }
-    #loader { text-align: center; padding: 40px; font-size: 18px; color: #aaa; }
+    #loader { text-align: center; padding: 50px; font-size: 16px; color: #666; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>TAMIL TV SHOWS</h1>
-    <input type="text" id="searchInput" class="search-box" placeholder="சீரியல் பெயர் அல்லது தேதியைத் தேடவும்..." onkeyup="filterEpisodes()">
+    <div class="header-top">
+      <div class="logo" onclick="showAllSerials()">VIJAY TV SERIALS</div>
+      <input type="text" id="searchInput" class="search-box" placeholder="சீரியல் பெயரைத் தேடவும்..." onkeyup="searchSerials()">
+    </div>
   </header>
 
-  <div class="filters">
-    <button class="filter-btn active" onclick="filterChannel('All', this)">All</button>
-    <button class="filter-btn" onclick="filterChannel('Vijay TV', this)">Vijay TV</button>
-    <button class="filter-btn" onclick="filterChannel('Sun TV', this)">Sun TV</button>
-    <button class="filter-btn" onclick="filterChannel('Zee Tamil', this)">Zee Tamil</button>
-  </div>
+  <div class="container">
+    <div id="loader">சீரியல்கள் ஏற்றப்படுகின்றன...</div>
 
-  <!-- Video Player -->
-  <div id="player-container">
-    <button class="close-btn" onclick="closePlayer()">✖ Close</button>
-    <div style="clear: both;"></div>
-    <div class="video-wrapper">
-      <iframe id="videoFrame" src="" allowfullscreen></iframe>
+    <!-- Home View: All Serials Grid -->
+    <div id="serials-view">
+      <h2 class="section-title">Serials</h2>
+      <div class="serials-grid" id="serialsGrid"></div>
     </div>
-    <h2 id="player-title"></h2>
-  </div>
 
-  <div id="loader">எபிசோடுகள் ஏற்றப்படுகின்றன...</div>
-  <div class="grid" id="episodesGrid"></div>
+    <!-- Single Serial Episodes & Video Player View -->
+    <div id="episodes-view">
+      <br>
+      <button class="back-btn" onclick="showAllSerials()">← அனைத்து சீரியல்கள் (Back)</button>
+      
+      <div id="player-box">
+        <div class="video-wrapper">
+          <iframe id="videoFrame" src="" allowfullscreen></iframe>
+        </div>
+        <div class="player-bar">
+          <span id="nowPlayingTitle" style="font-size: 15px;"></span>
+          <button class="close-player" onclick="closePlayer()">✖ Close</button>
+        </div>
+      </div>
+
+      <h2 id="selectedSerialTitle" class="section-title" style="text-align:left; margin-top:5px;"></h2>
+      <div class="episodes-list" id="episodesList"></div>
+    </div>
+  </div>
 
   <script>
-    // உங்கள் Google Apps Script URL இணைக்கப்பட்டுள்ளது
     const API_URL = "https://script.google.com/macros/s/AKfycbwo0t1Ucy2RYGVudIQ8xdIfOoSBwUY0-u4-eAa-CHswg7AJEmow2kcQviwsXws5Ek50/exec";
-    let allEpisodes = [];
-    let currentChannel = "All";
+    let allData = [];
+    let uniqueSerials = [];
 
     // Google Sheet-லிருந்து டேட்டாவை எடுத்தல்
     fetch(API_URL)
       .then(res => res.json())
       .then(data => {
-        allEpisodes = data;
+        allData = data;
         document.getElementById("loader").style.display = "none";
-        if (allEpisodes.length === 0) {
-          document.getElementById("episodesGrid").innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#aaa;'>Google Sheet-ல் இன்னும் எபிசோடுகள் சேர்க்கப்படவில்லை.</p>";
-        } else {
-          renderEpisodes(allEpisodes);
-        }
+        groupSerials(allData);
       })
       .catch(err => {
-        document.getElementById("loader").innerText = "டேட்டாவை எடுப்பதில் பிழை ஏற்பட்டுள்ளது. Apps Script-ல் 'Who has access: Anyone' என உள்ளதா எனச் சரிபார்க்கவும்.";
+        document.getElementById("loader").innerText = "டேட்டாவை எடுப்பதில் பிழை! Apps Script-ல் 'Anyone' அனுமதி உள்ளதா எனச் சரிபார்க்கவும்.";
       });
 
-    function renderEpisodes(list) {
-      const grid = document.getElementById("episodesGrid");
+    // ஒரே சீரியலின் எபிசோடுகளை ஒன்றாக இணைத்து முகப்புப் பக்கத்தில் காட்டுதல்
+    function groupSerials(data) {
+      const map = new Map();
+      data.forEach(item => {
+        const name = (item.Serial || "Other").trim();
+        if (!map.has(name)) {
+          map.set(name, {
+            name: name,
+            thumbnail: item.Thumbnail || "",
+            episodes: []
+          });
+        }
+        map.get(name).episodes.push(item);
+      });
+      uniqueSerials = Array.from(map.values());
+      renderSerials(uniqueSerials);
+    }
+
+    function renderSerials(list) {
+      const grid = document.getElementById("serialsGrid");
       grid.innerHTML = "";
-      list.forEach(ep => {
+      if (list.length === 0) {
+        grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#777;'>சீரியல்கள் எதுவும் இல்லை.</p>";
+        return;
+      }
+      list.forEach(serial => {
         const card = document.createElement("div");
-        card.className = "card";
-        card.onclick = () => playVideo(ep.VideoURL, ep.Title);
+        card.className = "serial-card";
+        card.onclick = () => openSerial(serial);
         card.innerHTML = `
-          <img src="${ep.Thumbnail || ''}" alt="${ep.Title || 'Episode'}">
-          <div class="card-body">
-            <span class="badge">${ep.Channel || 'TV Show'}</span>
-            <div class="card-title">${ep.Title || ''}</div>
-            <div class="card-date">📅 ${ep.Date || ''}</div>
-          </div>
+          <img src="${serial.thumbnail}" alt="${serial.name}">
+          <div class="serial-name">${serial.name}</div>
         `;
         grid.appendChild(card);
       });
     }
 
-    function playVideo(url, title) {
-      const player = document.getElementById("player-container");
+    // ஒரு சீரியலைக் கிளிக் செய்தால் அதன் எபிசோடுகளைக் காட்டுதல்
+    function openSerial(serial) {
+      document.getElementById("serials-view").style.display = "none";
+      document.getElementById("episodes-view").style.display = "block";
+      document.getElementById("selectedSerialTitle").innerText = serial.name + " - Episodes";
+      closePlayer();
+
+      const epList = document.getElementById("episodesList");
+      epList.innerHTML = "";
+      serial.episodes.forEach(ep => {
+        const card = document.createElement("div");
+        card.className = "ep-card";
+        card.onclick = () => playEpisode(ep.VideoURL, ep.Title);
+        card.innerHTML = `
+          <img src="${ep.Thumbnail}" alt="${ep.Title}">
+          <div class="ep-info">
+            <div class="ep-title">${ep.Title}</div>
+            <div class="ep-date">📅 ${ep.Date}</div>
+          </div>
+        `;
+        epList.appendChild(card);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function playEpisode(url, title) {
+      document.getElementById("player-box").style.display = "block";
       document.getElementById("videoFrame").src = url;
-      document.getElementById("player-title").innerText = title;
-      player.style.display = "block";
+      document.getElementById("nowPlayingTitle").innerText = title;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function closePlayer() {
       document.getElementById("videoFrame").src = "";
-      document.getElementById("player-container").style.display = "none";
+      document.getElementById("player-box").style.display = "none";
     }
 
-    function filterChannel(channel, btn) {
-      currentChannel = channel;
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      filterEpisodes();
+    function showAllSerials() {
+      closePlayer();
+      document.getElementById("episodes-view").style.display = "none";
+      document.getElementById("serials-view").style.display = "block";
     }
 
-    function filterEpisodes() {
-      const query = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = allEpisodes.filter(ep => {
-        const title = (ep.Title || "").toLowerCase();
-        const serial = (ep.Serial || "").toLowerCase();
-        const date = String(ep.Date || "");
-        const matchesChannel = currentChannel === "All" || ep.Channel === currentChannel;
-        const matchesQuery = title.includes(query) || serial.includes(query) || date.includes(query);
-        return matchesChannel && matchesQuery;
-      });
-      renderEpisodes(filtered);
+    function searchSerials() {
+      showAllSerials();
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = uniqueSerials.filter(s => s.name.toLowerCase().includes(q));
+      renderSerials(filtered);
     }
   </script>
 
