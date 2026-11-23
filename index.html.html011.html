@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tamil TV Shows & Serials</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background: #121212; color: #fff; }
+    
+    /* Header & Search */
+    header { background: #1f1f1f; padding: 15px; text-align: center; border-bottom: 2px solid #e50914; }
+    header h1 { font-size: 22px; color: #e50914; margin-bottom: 10px; }
+    .search-box { width: 90%; max-width: 500px; padding: 10px; border-radius: 5px; border: none; font-size: 15px; }
+
+    /* Channel Filter Buttons */
+    .filters { display: flex; justify-content: center; gap: 10px; padding: 15px; flex-wrap: wrap; }
+    .filter-btn { background: #2c2c2c; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+    .filter-btn.active, .filter-btn:hover { background: #e50914; }
+
+    /* Video Player Section */
+    #player-container { display: none; max-width: 800px; margin: 15px auto; background: #1f1f1f; padding: 15px; border-radius: 8px; }
+    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+    .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    #player-title { margin-top: 10px; font-size: 18px; color: #f5f5f5; }
+    .close-btn { background: #e50914; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; float: right; margin-bottom: 10px; }
+
+    /* Episodes Grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; padding: 15px; max-width: 1200px; margin: auto; }
+    .card { background: #1f1f1f; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .card:hover { transform: scale(1.03); }
+    .card img { width: 100%; height: 150px; object-fit: cover; }
+    .card-body { padding: 12px; }
+    .badge { background: #e50914; font-size: 11px; padding: 3px 7px; border-radius: 3px; }
+    .card-title { font-size: 15px; margin-top: 8px; line-height: 1.4; }
+    .card-date { font-size: 12px; color: #aaa; margin-top: 5px; }
+    #loader { text-align: center; padding: 40px; font-size: 18px; color: #aaa; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TAMIL TV SHOWS</h1>
+    <input type="text" id="searchInput" class="search-box" placeholder="சீரியல் பெயர் அல்லது தேதியைத் தேடவும்..." onkeyup="filterEpisodes()">
+  </header>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterChannel('All', this)">All</button>
+    <button class="filter-btn" onclick="filterChannel('Vijay TV', this)">Vijay TV</button>
+    <button class="filter-btn" onclick="filterChannel('Sun TV', this)">Sun TV</button>
+    <button class="filter-btn" onclick="filterChannel('Zee Tamil', this)">Zee Tamil</button>
+  </div>
+
+  <!-- Video Player -->
+  <div id="player-container">
+    <button class="close-btn" onclick="closePlayer()">✖ Close</button>
+    <div style="clear: both;"></div>
+    <div class="video-wrapper">
+      <iframe id="videoFrame" src="" allowfullscreen></iframe>
+    </div>
+    <h2 id="player-title"></h2>
+  </div>
+
+  <div id="loader">எபிசோடுகள் ஏற்றப்படுகின்றன...</div>
+  <div class="grid" id="episodesGrid"></div>
+
+  <script>
+    // உங்கள் Google Apps Script URL-ஐ கீழே பேஸ்ட் செய்யவும்
+    const API_URL = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL";
+    let allEpisodes = [];
+    let currentChannel = "All";
+
+    // Google Sheet-லிருந்து டேட்டாவை எடுத்தல்
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        allEpisodes = data;
+        document.getElementById("loader").style.display = "none";
+        renderEpisodes(allEpisodes);
+      })
+      .catch(err => {
+        document.getElementById("loader").innerText = "டேட்டாவை எடுப்பதில் பிழை ஏற்பட்டுள்ளது.";
+      });
+
+    function renderEpisodes(list) {
+      const grid = document.getElementById("episodesGrid");
+      grid.innerHTML = "";
+      list.forEach(ep => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => playVideo(ep.VideoURL, ep.Title);
+        card.innerHTML = `
+          <img src="${ep.Thumbnail}" alt="${ep.Title}">
+          <div class="card-body">
+            <span class="badge">${ep.Channel}</span>
+            <div class="card-title">${ep.Title}</div>
+            <div class="card-date">📅 ${ep.Date}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function playVideo(url, title) {
+      const player = document.getElementById("player-container");
+      document.getElementById("videoFrame").src = url;
+      document.getElementById("player-title").innerText = title;
+      player.style.display = "block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closePlayer() {
+      document.getElementById("videoFrame").src = "";
+      document.getElementById("player-container").style.display = "none";
+    }
+
+    function filterChannel(channel, btn) {
+      currentChannel = channel;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      filterEpisodes();
+    }
+
+    function filterEpisodes() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = allEpisodes.filter(ep => {
+        const matchesChannel = currentChannel === "All" || ep.Channel === currentChannel;
+        const matchesQuery = ep.Title.toLowerCase().includes(query) || ep.Serial.toLowerCase().includes(query) || ep.Date.includes(query);
+        return matchesChannel && matchesQuery;
+      });
+      renderEpisodes(filtered);
+    }
+  </script>
+
+</body>
+</html>
