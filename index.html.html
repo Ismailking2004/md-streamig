@@ -29,7 +29,7 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; padding: 15px; max-width: 1200px; margin: auto; }
     .card { background: #1f1f1f; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
     .card:hover { transform: scale(1.03); }
-    .card img { width: 100%; height: 150px; object-fit: cover; }
+    .card img { width: 100%; height: 150px; object-fit: cover; background: #2a2a2a; }
     .card-body { padding: 12px; }
     .badge { background: #e50914; font-size: 11px; padding: 3px 7px; border-radius: 3px; }
     .card-title { font-size: 15px; margin-top: 8px; line-height: 1.4; }
@@ -65,8 +65,8 @@
   <div class="grid" id="episodesGrid"></div>
 
   <script>
-    // உங்கள் Google Apps Script URL-ஐ கீழே பேஸ்ட் செய்யவும்
-    const API_URL = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL";
+    // உங்கள் Google Apps Script URL இணைக்கப்பட்டுள்ளது
+    const API_URL = "https://script.google.com/macros/s/AKfycbwo0t1Ucy2RYGVudIQ8xdIfOoSBwUY0-u4-eAa-CHswg7AJEmow2kcQviwsXws5Ek50/exec";
     let allEpisodes = [];
     let currentChannel = "All";
 
@@ -76,10 +76,14 @@
       .then(data => {
         allEpisodes = data;
         document.getElementById("loader").style.display = "none";
-        renderEpisodes(allEpisodes);
+        if (allEpisodes.length === 0) {
+          document.getElementById("episodesGrid").innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#aaa;'>Google Sheet-ல் இன்னும் எபிசோடுகள் சேர்க்கப்படவில்லை.</p>";
+        } else {
+          renderEpisodes(allEpisodes);
+        }
       })
       .catch(err => {
-        document.getElementById("loader").innerText = "டேட்டாவை எடுப்பதில் பிழை ஏற்பட்டுள்ளது.";
+        document.getElementById("loader").innerText = "டேட்டாவை எடுப்பதில் பிழை ஏற்பட்டுள்ளது. Apps Script-ல் 'Who has access: Anyone' என உள்ளதா எனச் சரிபார்க்கவும்.";
       });
 
     function renderEpisodes(list) {
@@ -90,11 +94,11 @@
         card.className = "card";
         card.onclick = () => playVideo(ep.VideoURL, ep.Title);
         card.innerHTML = `
-          <img src="${ep.Thumbnail}" alt="${ep.Title}">
+          <img src="${ep.Thumbnail || ''}" alt="${ep.Title || 'Episode'}">
           <div class="card-body">
-            <span class="badge">${ep.Channel}</span>
-            <div class="card-title">${ep.Title}</div>
-            <div class="card-date">📅 ${ep.Date}</div>
+            <span class="badge">${ep.Channel || 'TV Show'}</span>
+            <div class="card-title">${ep.Title || ''}</div>
+            <div class="card-date">📅 ${ep.Date || ''}</div>
           </div>
         `;
         grid.appendChild(card);
@@ -124,8 +128,11 @@
     function filterEpisodes() {
       const query = document.getElementById("searchInput").value.toLowerCase();
       const filtered = allEpisodes.filter(ep => {
+        const title = (ep.Title || "").toLowerCase();
+        const serial = (ep.Serial || "").toLowerCase();
+        const date = String(ep.Date || "");
         const matchesChannel = currentChannel === "All" || ep.Channel === currentChannel;
-        const matchesQuery = ep.Title.toLowerCase().includes(query) || ep.Serial.toLowerCase().includes(query) || ep.Date.includes(query);
+        const matchesQuery = title.includes(query) || serial.includes(query) || date.includes(query);
         return matchesChannel && matchesQuery;
       });
       renderEpisodes(filtered);
